@@ -1,0 +1,682 @@
+package application;
+
+import data.Progress;
+import entity.Entity;
+import entity.enemy.BOS_Stalfos_Lord;
+import entity.npc.NPC_Traveler_2;
+import entity.npc.PlayerDummy;
+import entity.object.OBJ_BlueHeart;
+import entity.object.OBJ_Door_Closed;
+
+import java.awt.*;
+
+public class SceneManager {
+
+    private final GamePanel gp;
+    private Graphics2D g2;
+    public int scene = 0;
+    public int phase = 0;
+    private int counter = 0;
+    public boolean canSkip;
+    private String lookDirection = "";
+    private float alpha = 0f;
+    private int y = 0;
+    private String credits = "";
+
+    public int worldX = 0;
+    public int worldY = 0;
+
+    public final int NA = 0;
+    public final int npc = 1;
+    public final int enemy_spawn = 2;
+    public final int puzzle_solve = 3;
+    public final int boss_1 = 4;
+    public final int boss_1_defeat = 5;
+    public final int ending = 6;
+
+    private Entity npc1, npc2;
+
+    public SceneManager(GamePanel gp) {
+        this.gp = gp;
+
+        npc1 = null;
+        npc2 = null;
+
+        credits = "- DIRECTOR / PRODUCER -\n"
+                + "Zachary Betters"
+
+                + "\n\n- PROGRAMMER / QA PROGRAMMER -"
+                + "\nZachary Betters"
+
+                + "\n\n- WRITING / DIALOGUE -"
+                + "\nZachary Betters"
+
+                + "\n\n- SPRITE ARTISTS -"
+                + "\nBruce Juice\nDrshnaps\nEternalLight\nMister Mike\nRed Mage Moogle\nSpikey Vi\nXfixium"
+
+                + "\n\n- SFX -"
+                + "\nDayjo\nHTW\nViviVGM-"
+
+                + "\n\n- PLAY TESTERS -"
+                + "\nJenna Betters\nJosh Betters\nZachary Betters\nNicholas Carey"
+
+                + "\n\n- MUSIC FROM -"
+                + "\nA Link to the Past"
+
+                + "\n\n- INSPIRED BY -"
+                + "\nA Link to the Past\nLink's Awakening\nMinish Cap\nOracle of Ages"
+                + "\nThe Legend of Zelda NES\nTwilight Princess"
+
+                + "\n\nSPECIAL THANKS TO...\n"
+                + "Nintendo\n"
+                + "RyiSnow\n"
+                + "You, the player!"
+
+                + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                + "THE END?";
+    }
+
+    protected void draw(Graphics2D g2) {
+        this.g2 = g2;
+
+        switch (scene) {
+            case npc:
+                scene_npc_1();
+                break;
+            case enemy_spawn:
+                scene_enemy_spawn();
+                break;
+            case puzzle_solve:
+                puzzle_solve();
+                break;
+            case boss_1:
+                scene_boss_1();
+                break;
+            case boss_1_defeat:
+                scene_boss_1_defeat();
+                break;
+            case ending:
+                scene_ending();
+                break;
+        }
+    }
+
+    public void skipScene() {
+        switch (scene) {
+            case npc:
+                scene_npc_1_skip();
+                break;
+            case boss_1:
+                scene_boss_1_skip();
+                break;
+        }
+    }
+
+    private void scene_npc_1() {
+
+        if (phase == 0) {
+            canSkip = true;
+            gp.ui.drawDialogueScreen(true);
+            npc1 = gp.ui.npc;
+        }
+        else if (phase == 1) {
+
+            for (int i = 0; i < gp.npc[1].length; i++) {
+                if (gp.npc[gp.currentMap][i].name.equals(NPC_Traveler_2.npcName)) {
+
+                    gp.npc[gp.currentMap][i].worldX = 23 * gp.tileSize;
+                    gp.npc[gp.currentMap][i].drawing = true;
+
+                    npc2 = gp.npc[gp.currentMap][i];
+
+                    gp.ui.npc = npc2;
+                    npc2.setPath(21, 21);
+                    npc2.onPath = true;
+
+                    phase++;
+
+                    break;
+                }
+            }
+        }
+        else if (phase == 2) {
+
+            if (npc2 != null) {
+
+                // WAIT UNTIL TRAVELER GETS TO PLAYER
+                if (!npc2.onPath) {
+
+                    npc1.direction = "right";
+
+                    npc2.pathCompleted = false;
+                    npc2.dialogueSet = 1;
+                    gp.ui.drawDialogueScreen(true);
+
+                    // LOOK AT SPEAKER
+                    if (gp.ui.npc.dialogueIndex % 2 == 0) {
+                        gp.player.direction = gp.player.findTargetDirection(npc2);
+                    }
+                    else {
+                        gp.player.direction = gp.player.findTargetDirection(npc1);
+                    }
+                }
+            }
+            // FAILSAFE
+            else {
+                gp.gameState = gp.playState;
+            }
+        }
+        else if (phase == 3) {
+
+            npc1.setPath(19, 40);
+            npc2.setPath(21, 41);
+
+            npc1.onPath = true;
+            npc2.onPath = true;
+            npc1.pathCompleted = false;
+            npc2.pathCompleted = false;
+
+            npc1.hasCutscene = false;
+            npc1.dialogueSet = 1;
+            npc2.dialogueSet = 2;
+
+            gp.ui.npc = null;
+
+            scene = NA;
+            phase = 0;
+            canSkip = false;
+
+            gp.gameState = gp.playState;
+        }
+    }
+
+    public void scene_npc_1_skip() {
+
+        for (int i = 0; i < gp.npc[1].length; i++) {
+            if (gp.npc[gp.currentMap][i].name.equals(NPC_Traveler_2.npcName)) {
+
+                gp.npc[gp.currentMap][i].worldX = 23 * gp.tileSize;
+                gp.npc[gp.currentMap][i].drawing = true;
+
+                npc2 = gp.npc[gp.currentMap][i];
+
+                break;
+            }
+        }
+
+        npc2.worldX = 23 * gp.tileSize;
+        npc2.worldY = 21 * gp.tileSize;
+
+        npc1.setPath(19, 42);
+        npc2.setPath(21, 43);
+
+        npc1.onPath = true;
+        npc2.onPath = true;
+        npc1.pathCompleted = false;
+        npc2.pathCompleted = false;
+
+        npc1.hasCutscene = false;
+        npc1.dialogueSet = 1;
+        npc2.dialogueSet = 2;
+
+        scene = NA;
+        phase = 0;
+        canSkip = false;
+
+        gp.ui.resetDialogue();
+        gp.gameState = gp.playState;
+    }
+
+    private void scene_enemy_spawn() {
+
+        if (phase == 0) {
+            playDoorCloseSE();
+            gp.player.resetValues();
+            gp.player.canMove = false;
+
+            lookDirection = gp.player.direction;
+            switch (lookDirection) {
+                case "up":
+                case "upleft":
+                case "upright":
+                    gp.player.direction = "down";
+                    break;
+                case "down":
+                case "downleft":
+                case "downright":
+                    gp.player.direction = "up";
+                    break;
+                case "left":
+                    gp.player.direction = "right";
+                    break;
+                case "right":
+                    gp.player.direction = "left";
+                    break;
+            }
+
+            phase++;
+        }
+        else if (phase == 1) {
+            if (counterReached(60)) {
+                phase++;
+            }
+        }
+        else if (phase == 2) {
+
+            gp.player.direction = lookDirection;
+            gp.player.canMove = true;
+
+            scene = NA;
+            phase = 0;
+
+            gp.gameState = gp.playState;
+        }
+    }
+
+    private void puzzle_solve() {
+
+        if (phase == 0) {
+            if (counterReached(30)) {
+                phase++;
+            }
+        }
+        else if (phase == 1) {
+
+            // PLACE DUMMY IN NPC SLOT
+            for (int i = 0; i < gp.npc[1].length; i++) {
+                if (gp.npc[gp.currentMap][i] == null) {
+                    gp.npc[gp.currentMap][i] = new PlayerDummy(gp);
+                    gp.npc[gp.currentMap][i].worldX = gp.player.worldX;
+                    gp.npc[gp.currentMap][i].worldY = gp.player.worldY;
+                    gp.npc[gp.currentMap][i].direction = gp.player.direction;
+
+                    break;
+                }
+            }
+
+            gp.player.drawing = false;
+            phase++;
+        }
+        else if (phase == 2) {
+
+            gp.player.worldX = worldX * gp.tileSize;
+            gp.player.worldY = worldY * gp.tileSize;
+
+            if (counterReached(30)) {
+                phase++;
+            }
+        }
+        else if (phase == 3) {
+
+            gp.openDoor(worldX, worldY, OBJ_Door_Closed.objName);
+
+            if (counterReached(90)) {
+                playSolveSE();
+                phase++;
+            }
+        }
+        else if (phase == 4) {
+
+            // RETURN CAMERA TO PLAYER
+            for (int i = 0; i < gp.npc[1].length; i++) {
+                if (gp.npc[gp.currentMap][i] != null &&
+                        gp.npc[gp.currentMap][i].name.equals(PlayerDummy.npcName)) {
+                    gp.player.worldX = gp.npc[gp.currentMap][i].worldX;
+                    gp.player.worldY = gp.npc[gp.currentMap][i].worldY;
+                    gp.npc[gp.currentMap][i] = null;
+
+                    break;
+                }
+            }
+
+            gp.player.drawing = true;
+
+            scene = NA;
+            phase = 0;
+            worldX = 0;
+            worldY = 0;
+
+            gp.gameState = gp.playState;
+        }
+    }
+
+    private void scene_boss_1() {
+
+        if (phase == 0) {
+            gp.stopMusic();
+
+            canSkip = true;
+
+            gp.player.resetValues();
+
+            gp.bossBattleOn = true;
+
+            // ADD IRON DOOR BEHIND PLAYER
+            for (int i = 0; i < gp.obj[1].length; i++) {
+                if (gp.obj[gp.currentMap][i] == null) {
+
+                    gp.obj[gp.currentMap][i] = new OBJ_Door_Closed(gp, 25, 29);
+                    gp.obj[gp.currentMap][i].direction = "up";
+                    gp.obj[gp.currentMap][i].temp = true;
+                    gp.obj[gp.currentMap][i].playCloseSE();
+
+                    break;
+                }
+            }
+
+            // PLACE DUMMY IN NPC SLOT
+            for (int i = 0; i < gp.npc[1].length; i++) {
+                if (gp.npc[gp.currentMap][i] == null) {
+                    gp.npc[gp.currentMap][i] = new PlayerDummy(gp);
+                    gp.npc[gp.currentMap][i].worldX = gp.player.worldX;
+                    gp.npc[gp.currentMap][i].worldY = gp.player.worldY;
+                    gp.npc[gp.currentMap][i].direction = "up";
+
+                    break;
+                }
+            }
+
+            gp.player.drawing = false;
+            phase++;
+        }
+        else if (phase == 1) {
+
+            gp.player.worldY -= 2;
+
+            if (gp.player.worldY < gp.tileSize * 20) {
+                phase++;
+            }
+        }
+        else if (phase == 2) {
+
+            // SEARCH FOR BOSS
+            for (int i = 0; i < gp.enemy[1].length; i++) {
+                if (gp.enemy[gp.currentMap][i] != null &&
+                        gp.enemy[gp.currentMap][i].name.equals(BOS_Stalfos_Lord.emyName)) {
+
+                    gp.enemy[gp.currentMap][i].sleep = false;
+                    gp.ui.npc = gp.enemy[gp.currentMap][i];
+
+                    phase++;
+
+                    break;
+                }
+            }
+        }
+        else if (phase == 3) {
+            gp.ui.drawDialogueScreen(true);
+        }
+        else if (phase == 4) {
+            playBossMusic();
+
+            // RETURN CAMERA TO PLAYER
+            for (int i = 0; i < gp.npc[1].length; i++) {
+                if (gp.npc[gp.currentMap][i] != null &&
+                        gp.npc[gp.currentMap][i].name.equals(PlayerDummy.npcName)) {
+                    gp.player.worldX = gp.npc[gp.currentMap][i].worldX;
+                    gp.player.worldY = gp.npc[gp.currentMap][i].worldY;
+                    gp.npc[gp.currentMap][i] = null;
+
+                    break;
+                }
+            }
+
+            gp.player.drawing = true;
+
+            scene = NA;
+            phase = 0;
+            canSkip = false;
+
+            gp.gameState = gp.playState;
+        }
+    }
+
+    private void scene_boss_1_skip() {
+
+        // CLOSE DOOR
+        for (int i = 0; i < gp.obj[1].length; i++) {
+            if (gp.obj[gp.currentMap][i] == null) {
+
+                gp.obj[gp.currentMap][i] = new OBJ_Door_Closed(gp, 25, 29);
+                gp.obj[gp.currentMap][i].direction = "up";
+                gp.obj[gp.currentMap][i].temp = true;
+                gp.obj[gp.currentMap][i].playCloseSE();
+
+                break;
+            }
+        }
+
+        // SEARCH FOR BOSS
+        for (int i = 0; i < gp.enemy[1].length; i++) {
+            if (gp.enemy[gp.currentMap][i] != null &&
+                    gp.enemy[gp.currentMap][i].name.equals(BOS_Stalfos_Lord.emyName)) {
+
+                gp.enemy[gp.currentMap][i].sleep = false;
+
+                break;
+            }
+        }
+
+        // RETURN CAMERA TO PLAYER
+        for (int i = 0; i < gp.npc[1].length; i++) {
+            if (gp.npc[gp.currentMap][i] != null &&
+                    gp.npc[gp.currentMap][i].name.equals(PlayerDummy.npcName)) {
+
+                gp.player.worldX = gp.npc[gp.currentMap][i].worldX;
+                gp.player.worldY = gp.npc[gp.currentMap][i].worldY;
+                gp.npc[gp.currentMap][i] = null;
+
+                break;
+            }
+        }
+
+        gp.player.drawing = true;
+
+        playBossMusic();
+
+        scene = NA;
+        phase = 0;
+        canSkip = false;
+
+        gp.ui.resetDialogue();
+        gp.gameState = gp.playState;
+    }
+
+    private void scene_boss_1_defeat() {
+        if (phase == 0) {
+            gp.stopMusic();
+            playVictoryMusic();
+
+            gp.player.resetValues();
+
+            gp.bossBattleOn = false;
+
+            phase++;
+        }
+        else if (phase == 1) {
+            // PAUSE FOR MUSIC
+            if (counterReached(610)) {
+                phase++;
+            }
+        }
+        else if (phase == 2) {
+            gp.stopMusic();
+            gp.openDoor(25, 15, OBJ_Door_Closed.objName);
+
+            scene = NA;
+            phase = 0;
+
+            gp.gameState = gp.playState;
+        }
+    }
+
+    private void scene_ending() {
+
+        if (phase == 0) {
+            gp.stopMusic();
+            gp.player.resetValues();
+            gp.ui.npc = new OBJ_BlueHeart(gp, 0, 0);
+            Progress.canSave = true;
+            phase++;
+        }
+        else if (phase == 1) {
+            gp.ui.drawDialogueScreen(true);
+        }
+        else if (phase == 2) {
+            playEndingMusic();
+            Progress.gameCompleted = true;
+            phase++;
+        }
+        else if (phase == 3) {
+
+            // PAUSE FOR 5 SECONDS
+            if (counterReached(300)) {
+                phase++;
+            }
+        }
+        else if (phase == 4) {
+
+            // DARKEN SCREEN
+            alpha += 0.005F;
+            if (alpha > 1f) {
+                alpha = 1f;
+            }
+
+            drawBlackScreen(alpha);
+
+            if (alpha == 1f) {
+                alpha = 0;
+                phase++;
+            }
+        }
+        else if (phase == 5) {
+
+            drawBlackScreen(1f);
+
+            alpha += 0.005F;
+            if (alpha > 1f) {
+                alpha = 1f;
+            }
+
+            String endText = gp.player.name
+                    + "...\nYour long journey has finally come to an end.\n"
+                    + "No evil spirit can ever retain this treasure.\n"
+                    + "Time to return home and rest well\n"
+                    + "knowing the world is at peace...";
+
+            drawString(alpha, 38f, 150, endText, 70);
+
+            // WAIT 10 SECONDS
+            if (counterReached(600)) {
+                phase++;
+            }
+        }
+        else if (phase == 6) {
+            drawBlackScreen(1f);
+
+            // SUBTITLE NAME
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+            String text = "The Legend of Zelda";
+            int x = gp.ui.getXforCenteredText(text);
+            int y = gp.tileSize * 5;
+            g2.setColor(Color.RED);
+            g2.drawString(text, x, y);
+
+            // TITLE NAME
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 90F));
+            text = "LINK'S REAWAKENING";
+            x = gp.ui.getXforCenteredText(text);
+            y += (int) (gp.tileSize * 1.5);
+            g2.setColor(Color.WHITE);
+            g2.drawString(text, x + 10, y);
+
+            // WAIT 8 SECONDS
+            if (counterReached(360)) {
+                gp.gameState = gp.endingState;
+                phase++;
+            }
+        }
+        else if (phase == 7) {
+            drawBlackScreen(1f);
+
+            y = gp.screenHeight + gp.tileSize;
+            drawString(1f, 38f, y, credits, 40);
+
+            // WAIT 1 SECOND
+            if (counterReached(60)) {
+                phase++;
+            }
+        }
+        else if (phase == 8) {
+            drawBlackScreen(1f);
+
+            drawString(1f, 38f, y, credits, 40);
+
+            // SCROLL CREDITS
+            if (y >= -2000) {
+                y--;
+            }
+            else {
+                // DO NOTHING AFTER CREDITS STOP
+            }
+        }
+    }
+
+    public boolean counterReached(int target) {
+
+        boolean counterReached = false;
+
+        counter++;
+        if (counter > target) {
+            counterReached = true;
+            counter = 0;
+        }
+
+        return counterReached;
+    }
+
+    private void drawBlackScreen(float alpha) {
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+    }
+
+    private void drawString(float alpha, float fontSize, int y, String text, int lineHeight) {
+
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(fontSize));
+
+        for (String line : text.split("\n")) {
+
+            int x = gp.ui.getXforCenteredText(line);
+            g2.drawString(line, x, y);
+
+            y += lineHeight;
+        }
+
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+    }
+
+    private void playDoorCloseSE() {
+        gp.playSE(4, 12);
+    }
+
+    public void playSolveSE() {
+        gp.playSE(6, 6);
+    }
+
+    private void playBossMusic() {
+        gp.playMusic(6);
+    }
+
+    private void playVictoryMusic() {
+        gp.playMusic(7);
+    }
+
+    private void playEndingMusic() {
+        gp.playMusic(8);
+    }
+}

@@ -1,0 +1,119 @@
+package entity.enemy;
+
+import application.GamePanel;
+import entity.Entity;
+import entity.collectable.COL_Heart;
+import entity.collectable.COL_Rupee_Green;
+
+import java.awt.*;
+import java.util.Random;
+
+public class EMY_ChuChu_Red extends Entity {
+
+    public static final String emyName = "Red ChuChu";
+
+    public EMY_ChuChu_Red(GamePanel gp, int worldX, int worldY) {
+        super(gp);
+        this.worldX = worldX * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
+        worldXStart = this.worldX;
+        worldYStart = this.worldY;
+
+        type = type_enemy;
+        name = emyName;
+        capturable = true;
+
+        maxLife = 10;
+        life = maxLife;
+        speed = 0;
+        defaultSpeed = speed;
+        animationSpeed = 12;
+        attack = 4;
+        knockbackPower = 0;
+
+        hitbox = new Rectangle(2, 18, 44, 30);
+        hitboxDefaultX = hitbox.x;
+        hitboxDefaultY = hitbox.y;
+        hitboxDefaultWidth = hitbox.width;
+        hitboxDefaultHeight = hitbox.height;
+    }
+
+    public void getImage() {
+        up1 = down1 = left1 = right1 = setup("/enemy/chuchu_red_down_1");
+        up2 = down2 = left2 = right2 = setup("/enemy/chuchu_red_down_2");
+        up3 = down3 = left3 = right3 = setup("/enemy/chuchu_red_down_3");
+    }
+
+    public void cycleSprites() {
+        spriteCounter++;
+        if (spriteCounter > animationSpeed && animationSpeed != 0) {
+
+            if (onPath || captured) {
+                speed = 1;
+                if (spriteNum == 1 || spriteNum == 2) {
+                    spriteNum = 3;
+                }
+                else if (spriteNum == 3) {
+                    spriteNum = 2;
+                }
+            }
+            else {
+                spriteNum = 1;
+                speed = defaultSpeed;
+            }
+
+            spriteCounter = 0;
+        }
+    }
+
+    public void setAction() {
+
+        if (!captured) {
+
+            isOffPath(gp.player, 8);
+            if (onPath && playerWithinBounds()) {
+                searchPath(getGoalCol(gp.player), getGoalRow(gp.player));
+            }
+            else {
+
+                // SEARCH FOR PLAYER IF WITHIN BOUNDS
+                if (playerWithinBounds()) {
+                    isOnPath(gp.player, 6);
+                }
+                else {
+                    onPath = false;
+                }
+            }
+        }
+    }
+
+    public void attacking() {
+        attacking = false;
+    }
+
+    public void damageReaction() {
+        actionLockCounter = 0;
+        onPath = true;
+    }
+
+    public void playHurtSE() {
+        gp.playSE(3, 0);
+    }
+
+    public void playDeathSE() {
+        gp.playSE(3, 2);
+    }
+
+    // DROPPED ITEM
+    public void checkDrop() {
+        super.checkDrop();
+
+        int i = new Random().nextInt(100) + 1;
+        if (i < 70) {
+            dropItem(new COL_Heart(gp));
+        }
+        else {
+            dropItem(new COL_Rupee_Green(gp));
+        }
+    }
+}
