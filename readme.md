@@ -12,7 +12,7 @@ This Java-based rpg uses a custom-built engine in IntelliJ learned from [RyiSnow
 ### Dependencies
 
 * Windows 10
-* Java 17
+* Java SDK 23
 
 ### Installing
 
