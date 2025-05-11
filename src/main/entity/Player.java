@@ -153,10 +153,11 @@ public class Player extends Entity {
         bombs = maxBombs;
         shotAvailableCounter = 30;
 
-        currentWeapon = null;
-        currentWeapon = new EQP_Sword_Old(gp);
-        currentShield = new EQP_Shield(gp);
 
+        currentWeapon = null;
+        currentShield = new EQP_Shield(gp);
+        /*
+        currentWeapon = new EQP_Sword_Old(gp);
         attack = getAttack();
 
         inventory_item.add(new ITM_Harp(gp));
@@ -168,6 +169,8 @@ public class Player extends Entity {
         inventory_item.add(new ITM_Hookshot(gp));
         inventory_item.add(new ITM_Cape(gp));
         inventory_item.add(new ITM_Rod(gp));
+
+         */
 
         setDefaultPosition();
         setDialogue();

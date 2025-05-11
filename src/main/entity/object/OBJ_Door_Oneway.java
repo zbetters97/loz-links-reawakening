@@ -14,7 +14,7 @@ public class OBJ_Door_Oneway extends Entity {
     public OBJ_Door_Oneway(GamePanel gp, int worldX, int worldY) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
 
         type = type_obstacle;
         name = objName;
@@ -28,7 +28,7 @@ public class OBJ_Door_Oneway extends Entity {
     public OBJ_Door_Oneway(GamePanel gp, int worldX, int worldY, String direction, boolean switchedOn) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
         this.direction = direction;
         this.switchedOn = switchedOn;
 

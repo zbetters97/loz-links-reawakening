@@ -11,7 +11,7 @@ public class OBJ_Door_Boss extends Entity {
     public OBJ_Door_Boss(GamePanel gp, int worldX, int worldY) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
 
         type = type_obstacle_i;
         name = objName;

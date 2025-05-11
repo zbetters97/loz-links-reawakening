@@ -20,6 +20,10 @@ public class EntityGenerator {
 
     public Entity getItem(String itemName) {
 
+        if (itemName == null) {
+            return null;
+        }
+
         Entity obj = switch (itemName) {
             case COL_Arrow.colName -> new COL_Arrow(gp);
             case COL_Bomb.colName -> new COL_Bomb(gp);

@@ -1185,6 +1185,8 @@ public class Entity {
     public boolean canObtainItem(Entity item) {
 
         Entity newItem = gp.eGenerator.getItem(item.name);
+        if (newItem == null) return false;
+
         newItem.amount = 1;
 
         // STACKABLE

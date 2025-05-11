@@ -10,7 +10,7 @@ public class OBJ_BlueHeart extends Entity {
     public OBJ_BlueHeart(GamePanel gp, int worldX, int worldY) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
 
         type = type_pickupOnly;
         name = objName;

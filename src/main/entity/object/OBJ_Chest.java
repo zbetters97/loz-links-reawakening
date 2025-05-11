@@ -12,7 +12,7 @@ public class OBJ_Chest extends Entity {
     public OBJ_Chest(GamePanel gp, int worldX, int worldY) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
 
         type = type_obstacle_i;
         name = objName;
@@ -30,7 +30,7 @@ public class OBJ_Chest extends Entity {
     public OBJ_Chest(GamePanel gp, int worldX, int worldY, Entity loot) {
         super(gp);
         this.worldX = worldX * gp.tileSize;
-        this.worldX = worldY * gp.tileSize;
+        this.worldY = worldY * gp.tileSize;
         this.loot = loot;
 
         type = type_obstacle_i;
